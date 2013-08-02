@@ -10,7 +10,7 @@
   <groupId>org.avaje.ebeanorm</groupId>
   <artifactId>avaje-ebeanorm-mavenenhancer</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>3.2.2</version>
+  <version>3.2.3-SNAPSHOT</version>
   <name>avaje-ebeanorm-mavenenhancer: Maven byte code enhancement tool</name>
   <url>http://www.avaje.org</url>
 
