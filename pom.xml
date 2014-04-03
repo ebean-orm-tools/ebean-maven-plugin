@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -10,7 +11,7 @@
   <groupId>org.avaje.ebeanorm</groupId>
   <artifactId>avaje-ebeanorm-mavenenhancer</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>3.2.3-SNAPSHOT</version>
+  <version>3.3.1-SNAPSHOT</version>
   <name>avaje-ebeanorm-mavenenhancer: Maven byte code enhancement tool</name>
   <url>http://www.avaje.org</url>
 
@@ -35,6 +36,7 @@
 
   <build>
     <plugins>
+    <!-- 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -61,25 +63,47 @@
           </execution>
         </executions>
       </plugin>
-      
+ -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
         <version>2.5.1</version>
         <configuration>
-          <goalPrefix>ebean-enhancer</goalPrefix>
+          <goalPrefix>avaje-ebeanormenhancer</goalPrefix>
         </configuration>
       </plugin>
       
     </plugins>
+    
   </build>
 
   <dependencies>
 
     <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-classworlds</artifactId>
+      <version>2.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-project</artifactId>
+      <version>2.0.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-model</artifactId>
+      <version>3.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact</artifactId>
+      <version>3.0.5</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>2.0</version>
+      <version>3.0.5</version>
     </dependency>
 
     <dependency>
@@ -96,5 +120,5 @@
     </dependency>
 
   </dependencies>
-  
+
 </project>

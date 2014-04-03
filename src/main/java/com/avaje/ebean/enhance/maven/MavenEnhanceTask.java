@@ -1,10 +1,18 @@
 package com.avaje.ebean.enhance.maven;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
 
 import com.avaje.ebean.enhance.agent.Transformer;
 import com.avaje.ebean.enhance.ant.OfflineFileTransform;
@@ -20,7 +28,8 @@ import com.avaje.ebean.enhance.ant.TransformationListener;
  * The parameters are:
  * <ul>
  * <li><b>classSource</b> This is the root directory where the .class files are
- * found. If this is left out then this defaults to ${project.build.outputDirectory}.</li>
+ * found. If this is left out then this defaults to
+ * ${project.build.outputDirectory}.</li>
  * <li><b>classDestination</b> This is the root directory where the .class files
  * are written to. If this is left out then this defaults to the
  * <b>classSource</b>.</li>
@@ -66,10 +75,20 @@ import com.avaje.ebean.enhance.ant.TransformationListener;
  *          2010) $
  * @since 2.5, Mar, 2009
  * @see com.avaje.ebean.enhance.ant.AntEnhanceTask
+ * @execute phase="process-classes"
  * @goal enhance
  * @phase process-classes
  */
 public class MavenEnhanceTask extends AbstractMojo {
+
+  /**
+   * The maven project.
+   * 
+   * @parameter expression="${project}"
+   * @required
+   */
+  protected MavenProject project;
+
   /**
    * the classpath used to search for e.g. inherited classes
    * 
@@ -135,10 +154,11 @@ public class MavenEnhanceTask extends AbstractMojo {
       extraClassPath.append(classpath);
     }
     Transformer t = new Transformer(extraClassPath.toString(), transformArgs);
-    ClassLoader cl = MavenEnhanceTask.class.getClassLoader();
 
-    log.info("classSource=" + classSource + "  transformArgs=" + transformArgs 
-        + "  classDestination=" + classDestination + "  packages="+ packages);
+    ClassLoader cl = buildClassLoader();
+    
+    log.info("classSource=" + classSource + "  transformArgs=" + transformArgs + "  classDestination="
+        + classDestination + "  packages=" + packages);
 
     OfflineFileTransform ft = new OfflineFileTransform(t, cl, classSource, classDestination);
     ft.setListener(new TransformationListener() {
@@ -148,9 +168,38 @@ public class MavenEnhanceTask extends AbstractMojo {
       }
 
       public void logError(String msg) {
-    	  log.error(msg);
+        log.error(msg);
       }
     });
     ft.process(packages);
+  }
+  
+  private ClassLoader buildClassLoader() {
+    
+    URL[] urls = buildClassPath();
+
+    return URLClassLoader.newInstance(urls, Thread.currentThread().getContextClassLoader());
+  }
+
+  @SuppressWarnings({ "unchecked" })
+  private URL[] buildClassPath() {
+    try {
+      List<URL> urls = new ArrayList<URL>();
+      
+      URL projectOut = new File(project.getBuild().getOutputDirectory()).toURI().toURL();
+      urls.add(projectOut);
+
+      Set<Artifact> artifacts = (Set<Artifact>) project.getArtifacts();
+      for (Artifact a : artifacts) {
+        urls.add(a.getFile().toURI().toURL());
+      }
+      
+      getLog().debug("ClassPath URLs: "+urls);
+      
+      return urls.toArray(new URL[urls.size()]);
+      
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
