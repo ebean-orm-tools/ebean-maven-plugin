@@ -181,7 +181,6 @@ public class MavenEnhanceTask extends AbstractMojo {
     return URLClassLoader.newInstance(urls, Thread.currentThread().getContextClassLoader());
   }
 
-  @SuppressWarnings({ "unchecked" })
   private URL[] buildClassPath() {
     try {
       List<URL> urls = new ArrayList<URL>();
