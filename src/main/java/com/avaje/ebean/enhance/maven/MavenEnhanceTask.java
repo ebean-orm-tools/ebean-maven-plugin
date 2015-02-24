@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -132,14 +133,13 @@ public class MavenEnhanceTask extends AbstractMojo {
   String packages;
 
   public void execute() throws MojoExecutionException {
-
     final Log log = getLog();
     if (classSource == null) {
-      classSource = "target/classes";
+        classSource = "target/classes";
     }
 
     if (classDestination == null) {
-      classDestination = classSource;
+        classDestination = classSource;
     }
 
     File f = new File("");
@@ -148,34 +148,39 @@ public class MavenEnhanceTask extends AbstractMojo {
     StringBuilder extraClassPath = new StringBuilder();
     extraClassPath.append(classSource);
     if (classpath != null) {
-      if (!extraClassPath.toString().endsWith(";")) {
-        extraClassPath.append(";");
-      }
-      extraClassPath.append(classpath);
+        if (!extraClassPath.toString().endsWith(";")) {
+            extraClassPath.append(";");
+        }
+        extraClassPath.append(classpath);
     }
     Transformer t = new Transformer(extraClassPath.toString(), transformArgs);
 
     ClassLoader cl = buildClassLoader();
-    
+
     log.info("classSource=" + classSource + "  transformArgs=" + transformArgs + "  classDestination="
-        + classDestination + "  packages=" + packages);
+            + classDestination + "  packages=" + packages);
 
     OfflineFileTransform ft = new OfflineFileTransform(t, cl, classSource, classDestination);
     ft.setListener(new TransformationListener() {
 
-      public void logEvent(String msg) {
-        log.info(msg);
-      }
+        public void logEvent(String msg) {
+            log.info(msg);
+        }
 
-      public void logError(String msg) {
-        log.error(msg);
-      }
+        public void logError(String msg) {
+            log.error(msg);
+        }
     });
     ft.process(packages);
+
+    Map<String, List<Throwable>> unexpectedExceptionsMap = t.getUnexpectedExceptions();
+    if (unexpectedExceptionsMap.size() > 0) {
+        throw new MojoExecutionException("Exceptions occurred during EBean enhancements, see the log above for the exact problems.");
+    }
   }
-  
+
   private ClassLoader buildClassLoader() {
-    
+
     URL[] urls = buildClassPath();
 
     return URLClassLoader.newInstance(urls, Thread.currentThread().getContextClassLoader());
