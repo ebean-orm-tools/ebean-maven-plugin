@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -131,6 +132,13 @@ public class MavenEnhanceTask extends AbstractMojo {
    */
   String packages;
 
+  /**
+   * Set to true to fail the maven build if exceptions occurred during enhancement.
+   *
+   * @parameter
+   */
+  boolean failOnExceptions;
+
   public void execute() throws MojoExecutionException {
 
     final Log log = getLog();
@@ -172,6 +180,11 @@ public class MavenEnhanceTask extends AbstractMojo {
       }
     });
     ft.process(packages);
+
+    Map<String, List<Throwable>> unexpectedExceptions = t.getUnexpectedExceptions();
+    if (failOnExceptions && !unexpectedExceptions.isEmpty()) {
+      throw new MojoExecutionException("Exceptions occurred during EBean enhancements, see the log above for the exact problems.");
+    }
   }
   
   private ClassLoader buildClassLoader() {
