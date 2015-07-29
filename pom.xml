@@ -15,7 +15,7 @@
   <url>http://www.avaje.org</url>
 
   <properties>
-    <ebeanorm.agent.version>4.5.3</ebeanorm.agent.version>
+    <ebeanorm.agent.version>4.5.4</ebeanorm.agent.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
