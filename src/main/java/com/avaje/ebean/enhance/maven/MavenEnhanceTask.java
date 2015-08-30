@@ -1,5 +1,16 @@
 package com.avaje.ebean.enhance.maven;
 
+import com.avaje.ebean.enhance.agent.Transformer;
+import com.avaje.ebean.enhance.ant.OfflineFileTransform;
+import com.avaje.ebean.enhance.ant.TransformationListener;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -7,17 +18,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
-
-import com.avaje.ebean.enhance.agent.Transformer;
-import com.avaje.ebean.enhance.ant.OfflineFileTransform;
-import com.avaje.ebean.enhance.ant.TransformationListener;
 
 /**
  * A Maven Plugin that can enhance entity beans etc for use by Ebean.
@@ -42,83 +42,65 @@ import com.avaje.ebean.enhance.ant.TransformationListener;
  * </ul>
  * </p>
  * 
- * <pre class="code">
- * 
- *    &lt;plugin&gt;
- *      &lt;groupId&gt;org.avaje&lt;/groupId&gt;
- *      &lt;artifactId&gt;ebean-maven-enhancement-plugin&lt;/artifactId&gt;
- *      &lt;version&gt;2.7.7&lt;/version&gt;
- *      &lt;executions&gt;
- *        &lt;execution&gt;
- *          &lt;id&gt;main&lt;/id&gt;
- *          &lt;phase&gt;process-classes&lt;/phase&gt;
- *          &lt;goals&gt;
- *            &lt;goal&gt;enhance&lt;/goal&gt;
- *          &lt;/goals&gt;
- *        &lt;/execution&gt;
- *      &lt;/executions&gt;
- *      &lt;configuration&gt;
- *        &lt;classSource&gt;target/classes&lt;/classSource&gt;
- *        &lt;packages&gt;com.avaje.ebean.meta.**, com.acme.myapp.entity.**&lt;/packages&gt;
- *        &lt;transformArgs&gt;debug=1&lt;/transformArgs&gt;
- *      &lt;/configuration&gt;
- *    &lt;/plugin&gt;
- * </pre>
- * <p>
- * To invoke explicitly:<br/>
- * <code>
- * &nbsp;&nbsp;&nbsp;&nbsp;mvn ebean-enhancer:enhance
- * </code>
- * </p>
- * 
- * @author Paul Mendelson, Vaughn Butt
- * @version $Revision: 1498 $, $Date: 2010-03-18 06:13:51 +1300 (Thu, 18 Mar
- *          2010) $
+ * <pre>{@code
+ *
+ *       <plugin>
+ *         <groupId>org.avaje.ebeanorm</groupId>
+ *         <artifactId>avaje-ebeanorm-mavenenhancer</artifactId>
+ *         <version>4.6.1</version>
+ *         <executions>
+ *           <execution>
+ *             <id>main</id>
+ *             <phase>process-classes</phase>
+ *             <configuration>
+ *               <!--<classSource>target/classes</classSource>-->
+ *               <!--<packages>org.example.domain.**</packages>-->
+ *               <!--<transformArgs>debug=3</transformArgs>-->
+ *             </configuration>
+ *           <goals>
+ *             <goal>enhance</goal>
+ *           </goals>
+ *         </execution>
+ *       </executions>
+ *     </plugin>
+ *
+ * }</pre>
+ *
+ * <h3>To invoke explicitly:</h3
+ * <pre>{@code
+ *
+ *   mvn avaje-ebeanormenhancer:enhance
+ *
+ * }</pre>
+ *
+ * @author Paul Mendelson, Vaughn Butt, Rob Bygrave
  * @since 2.5, Mar, 2009
- * @see com.avaje.ebean.enhance.ant.AntEnhanceTask
- * @execute phase="process-classes"
- * @goal enhance
- * @phase process-classes
  */
+@Mojo(name = "enhance", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class MavenEnhanceTask extends AbstractMojo {
 
   /**
-   * The maven project.
-   * 
-   * @parameter expression="${project}"
-   * @required
+   * The class path used to read related classes.
    */
-  protected MavenProject project;
+  @Parameter(property = "project.compileClasspathElements", required = true, readonly = true)
+  List<String> compileClasspathElements;
+
+  /**
+   * The directory holding the class files we want to transform.
+   */
+  @Parameter(property = "project.build.outputDirectory")
+  String classSource;
 
   /**
    * the classpath used to search for e.g. inherited classes
-   * 
-   * @parameter
    */
+  @Parameter(name = "classpath")
   private String classpath;
 
   /**
-   * Set the directory holding the class files we want to transform.
-   * 
-   * @parameter default-value="${project.build.outputDirectory}"
-   */
-  private String classSource;
-
-  /**
-   * Set the destination directory where we will put the transformed classes.
-   * <p>
-   * This is commonly the same as the classSource directory.
-   * </p>
-   * 
-   * @parameter
-   */
-  String classDestination;
-
-  /**
    * Set the arguments passed to the transformer.
-   * 
-   * @parameter
    */
+  @Parameter(name = "transformArgs")
   String transformArgs;
 
   /**
@@ -127,16 +109,19 @@ public class MavenEnhanceTask extends AbstractMojo {
    * If the package name ends in "/**" then this recursively transforms all sub
    * packages as well.
    * </p>
-   * 
-   * @parameter
+   * <p>
+   * This is optional. When not set the agent may visit more classes to see if they need
+   * enhancement but will still enhance effectively and pretty quickly (ignoring standard
+   * jdk classes and lots of common libraries and language sdk's).
+   * </p>
    */
+  @Parameter(name = "packages")
   String packages;
 
   /**
    * Set to true to fail the maven build if exceptions occurred during enhancement.
-   *
-   * @parameter
    */
+  @Parameter(name = "failOnExceptions")
   boolean failOnExceptions;
 
   public void execute() throws MojoExecutionException {
@@ -146,16 +131,11 @@ public class MavenEnhanceTask extends AbstractMojo {
       classSource = "target/classes";
     }
 
-    if (classDestination == null) {
-      classDestination = classSource;
-    }
-
     File f = new File("");
     log.info("Current Directory: " + f.getAbsolutePath());
 
     StringBuilder extraClassPath = new StringBuilder();
-    extraClassPath.append(classSource);
-    if (classpath != null) {
+    if (classpath != null && !classpath.isEmpty()) {
       if (!extraClassPath.toString().endsWith(";")) {
         extraClassPath.append(";");
       }
@@ -165,10 +145,9 @@ public class MavenEnhanceTask extends AbstractMojo {
 
     ClassLoader cl = buildClassLoader();
     
-    log.info("classSource=" + classSource + "  transformArgs=" + transformArgs + "  classDestination="
-        + classDestination + "  packages=" + packages);
+    log.info("classSource=" + classSource + "  transformArgs=" + nullToEmpty(transformArgs) + "  packages=" + nullToEmpty(packages));
 
-    OfflineFileTransform ft = new OfflineFileTransform(t, cl, classSource, classDestination);
+    OfflineFileTransform ft = new OfflineFileTransform(t, cl, classSource);
     ft.setListener(new TransformationListener() {
 
       public void logEvent(String msg) {
@@ -186,30 +165,39 @@ public class MavenEnhanceTask extends AbstractMojo {
       throw new MojoExecutionException("Exceptions occurred during EBean enhancements, see the log above for the exact problems.");
     }
   }
-  
+
+  /**
+   * Return a null string as empty (for pretty output on valid null parameters).
+   */
+  private String nullToEmpty(String val) {
+    return (val == null) ? "" : val;
+  }
+
   private ClassLoader buildClassLoader() {
     
     URL[] urls = buildClassPath();
-
     return URLClassLoader.newInstance(urls, Thread.currentThread().getContextClassLoader());
   }
 
+  /**
+   * Return the class path using project compileClasspathElements.
+   */
   private URL[] buildClassPath() {
-    try {
-      List<URL> urls = new ArrayList<URL>();
-      
-      URL projectOut = new File(project.getBuild().getOutputDirectory()).toURI().toURL();
-      urls.add(projectOut);
 
-      Set<Artifact> artifacts = (Set<Artifact>) project.getArtifacts();
-      for (Artifact a : artifacts) {
-        urls.add(a.getFile().toURI().toURL());
+    try {
+      List<URL> urls = new ArrayList<>(compileClasspathElements.size());
+
+      Log log = getLog();
+
+      for (String element : compileClasspathElements) {
+        if (log.isDebugEnabled()) {
+          log.debug("ClasspathElement: " + element);
+        }
+        urls.add(new File(element).toURI().toURL());
       }
-      
-      getLog().debug("ClassPath URLs: "+urls);
-      
+
       return urls.toArray(new URL[urls.size()]);
-      
+
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
