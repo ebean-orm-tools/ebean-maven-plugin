@@ -135,6 +135,7 @@ public class MavenEnhanceTask extends AbstractMojo {
     log.info("Current Directory: " + f.getAbsolutePath());
 
     StringBuilder extraClassPath = new StringBuilder();
+    extraClassPath.append(classSource);
     if (classpath != null && !classpath.isEmpty()) {
       if (!extraClassPath.toString().endsWith(";")) {
         extraClassPath.append(";");
