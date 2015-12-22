@@ -1,5 +1,6 @@
 package com.avaje.ebean.enhance.maven;
 
+import com.avaje.ebean.enhance.agent.AgentManifestReader;
 import com.avaje.ebean.enhance.agent.Transformer;
 import com.avaje.ebean.enhance.ant.OfflineFileTransform;
 import com.avaje.ebean.enhance.ant.TransformationListener;
@@ -12,12 +13,17 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 /**
  * A Maven Plugin that can enhance entity beans etc for use by Ebean.
@@ -142,13 +148,27 @@ public class MavenEnhanceTask extends AbstractMojo {
       }
       extraClassPath.append(classpath);
     }
-    Transformer t = new Transformer(extraClassPath.toString(), transformArgs);
 
-    ClassLoader cl = buildClassLoader();
-    
-    log.info("classSource=" + classSource + "  transformArgs=" + nullToEmpty(transformArgs) + "  packages=" + nullToEmpty(packages));
 
-    OfflineFileTransform ft = new OfflineFileTransform(t, cl, classSource);
+
+    // find the packages that we should process for enhancement
+    AgentManifestReader manifestReader = new AgentManifestReader();
+    // maybe configured via manifest (preferred)
+    manifestReader.read(new File(classSource+"/META-INF/ebean.mf"));
+    // maybe explicitly configured
+    manifestReader.addRaw(packages);
+
+    // these are the local packages to enhance (local to this artifact)
+    Set<String> localPackages = manifestReader.getPackages();
+
+
+    ClassLoader classLoader = buildClassLoader();
+
+    Transformer transformer = new Transformer(extraClassPath.toString(), transformArgs);
+
+    log.info("classSource=" + classSource + "  transformArgs=" + nullToEmpty(transformArgs) + "  packages=" + localPackages);
+
+    OfflineFileTransform ft = new OfflineFileTransform(transformer, classLoader, classSource);
     ft.setListener(new TransformationListener() {
 
       public void logEvent(String msg) {
@@ -159,9 +179,10 @@ public class MavenEnhanceTask extends AbstractMojo {
         log.error(msg);
       }
     });
-    ft.process(packages);
 
-    Map<String, List<Throwable>> unexpectedExceptions = t.getUnexpectedExceptions();
+    ft.process(localPackages);
+
+    Map<String, List<Throwable>> unexpectedExceptions = transformer.getUnexpectedExceptions();
     if (failOnExceptions && !unexpectedExceptions.isEmpty()) {
       throw new MojoExecutionException("Exceptions occurred during EBean enhancements, see the log above for the exact problems.");
     }
