@@ -15,7 +15,7 @@
   <url>http://ebean-orm.github.io/</url>
 
   <properties>
-    <ebeanorm.agent.version>4.9.1</ebeanorm.agent.version>
+    <ebeanorm.agent.version>4.9.2</ebeanorm.agent.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
