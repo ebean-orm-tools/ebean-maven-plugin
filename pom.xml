@@ -28,7 +28,7 @@
   </licenses>
 
   <scm>
-    <developerConnection>scm:git:git:github.com:ebean-orm-tools/ebean-maven-plugin.git</developerConnection>
+    <developerConnection>scm:git:git@github.com:ebean-orm-tools/ebean-maven-plugin.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
