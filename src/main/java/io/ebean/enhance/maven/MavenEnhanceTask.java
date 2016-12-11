@@ -1,8 +1,8 @@
-package com.avaje.ebean.enhance.maven;
+package io.ebean.enhance.maven;
 
-import com.avaje.ebean.enhance.agent.Transformer;
-import com.avaje.ebean.enhance.ant.OfflineFileTransform;
-import com.avaje.ebean.enhance.ant.TransformationListener;
+import io.ebean.enhance.agent.Transformer;
+import io.ebean.enhance.ant.OfflineFileTransform;
+import io.ebean.enhance.ant.TransformationListener;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
