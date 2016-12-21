@@ -15,8 +15,7 @@
   <url>http://ebean-orm.github.io/</url>
 
   <properties>
-    <ebean.agent.version>10.1.1</ebean.agent.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <ebean.agent.version>10.1.2</ebean.agent.version>
   </properties>
 
   <scm>
