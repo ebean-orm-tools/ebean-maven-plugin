@@ -6,6 +6,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
+import java.io.File;
+
 /**
  * Enhancement for src/main classes.
  *
@@ -17,10 +19,13 @@ public class TestEnhanceMojo extends AbstractEnhance {
    * The directory holding the class files we want to transform.
    */
   @Parameter(property = "project.build.testOutputDirectory")
-  String classSource;
+  String testClassSource;
 
   public void execute() throws MojoExecutionException {
-    executeFor(classSource);
+    File testOutDir = new File(testClassSource);
+    if (testOutDir.exists()) {
+      executeFor(testClassSource);
+    }
   }
 
 }
