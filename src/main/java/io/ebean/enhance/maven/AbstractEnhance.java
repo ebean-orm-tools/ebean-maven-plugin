@@ -1,6 +1,6 @@
 package io.ebean.enhance.maven;
 
-import io.ebean.enhance.agent.Transformer;
+import io.ebean.enhance.Transformer;
 import io.ebean.enhance.ant.OfflineFileTransform;
 import io.ebean.enhance.ant.TransformationListener;
 import org.apache.maven.plugin.AbstractMojo;
@@ -64,18 +64,9 @@ abstract class AbstractEnhance extends AbstractMojo {
 
   protected void executeFor(String classSource) throws MojoExecutionException {
 
-    StringBuilder extraClassPath = new StringBuilder();
-    extraClassPath.append(classSource);
-    if (classpath != null && !classpath.isEmpty()) {
-      if (!extraClassPath.toString().endsWith(";")) {
-        extraClassPath.append(";");
-      }
-      extraClassPath.append(classpath);
-    }
-
     ClassLoader classLoader = buildClassLoader();
 
-    Transformer transformer = new Transformer(extraClassPath.toString(), transformArgs);
+    Transformer transformer = new Transformer(classLoader, transformArgs);
     getLog().info("classSource=" + classSource + "  transformArgs=" + nullToEmpty(transformArgs) + "  packages=" + nullToEmpty(packages));
 
     OfflineFileTransform ft = new OfflineFileTransform(transformer, classLoader, classSource);
