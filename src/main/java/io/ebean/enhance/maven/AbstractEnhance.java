@@ -14,7 +14,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Base ebean enhancement for both src/main and src/test.
@@ -54,22 +53,17 @@ abstract class AbstractEnhance extends AbstractMojo {
   @Parameter(name = "packages")
   String packages;
 
-  /**
-   * Set to true to fail the maven build if exceptions occurred during enhancement.
-   */
-  @Parameter(name = "failOnExceptions")
-  boolean failOnExceptions;
-
   public abstract void execute() throws MojoExecutionException;
 
   protected void executeFor(String classSource) throws MojoExecutionException {
 
-    ClassLoader classLoader = buildClassLoader();
+    ClassLoader loader = buildClassLoader(classSource);
+    getLog().info("classLoaderClass=" + loader.getClass() + "  packages=" + loader);
 
-    Transformer transformer = new Transformer(classLoader, transformArgs);
+    Transformer transformer = new Transformer(loader, transformArgs);
     getLog().info("classSource=" + classSource + "  transformArgs=" + nullToEmpty(transformArgs) + "  packages=" + nullToEmpty(packages));
 
-    OfflineFileTransform ft = new OfflineFileTransform(transformer, classLoader, classSource);
+    OfflineFileTransform ft = new OfflineFileTransform(transformer, loader, classSource);
     ft.setListener(new TransformationListener() {
 
       public void logEvent(String msg) {
@@ -82,11 +76,6 @@ abstract class AbstractEnhance extends AbstractMojo {
     });
 
     ft.process(packages);
-
-    Map<String, List<Throwable>> unexpectedExceptions = transformer.getUnexpectedExceptions();
-    if (failOnExceptions && !unexpectedExceptions.isEmpty()) {
-      throw new MojoExecutionException("Exceptions occurred during EBean enhancements, see the log above for the exact problems.");
-    }
   }
 
   /**
@@ -96,16 +85,16 @@ abstract class AbstractEnhance extends AbstractMojo {
     return (val == null) ? "" : val;
   }
 
-  private ClassLoader buildClassLoader() {
+  private ClassLoader buildClassLoader(String classSource) {
     
-    URL[] urls = buildClassPath();
+    URL[] urls = buildClassPath(classSource);
     return URLClassLoader.newInstance(urls, Thread.currentThread().getContextClassLoader());
   }
 
   /**
    * Return the class path using project compileClasspathElements.
    */
-  private URL[] buildClassPath() {
+  private URL[] buildClassPath(String classSource) {
 
     try {
       List<URL> urls = new ArrayList<>(compileClasspathElements.size());
@@ -118,6 +107,8 @@ abstract class AbstractEnhance extends AbstractMojo {
         }
         urls.add(new File(element).toURI().toURL());
       }
+      log.debug("add source: " + classSource);
+      urls.add(new File(classSource).toURI().toURL());
 
       return urls.toArray(new URL[urls.size()]);
 
