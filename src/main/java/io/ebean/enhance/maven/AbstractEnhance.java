@@ -27,12 +27,6 @@ abstract class AbstractEnhance extends AbstractMojo {
   List<String> compileClasspathElements;
 
   /**
-   * the classpath used to search for e.g. inherited classes
-   */
-  @Parameter(name = "classpath")
-  private String classpath;
-
-  /**
    * Set the arguments passed to the transformer.
    */
   @Parameter(name = "transformArgs")
