@@ -15,7 +15,7 @@
   <url>http://ebean-orm.github.io/</url>
 
   <properties>
-    <ebean.agent.version>11.3.1</ebean.agent.version>
+    <ebean.agent.version>11.3.2</ebean.agent.version>
   </properties>
 
   <scm>
