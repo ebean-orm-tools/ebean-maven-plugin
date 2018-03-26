@@ -10,7 +10,7 @@
   <groupId>io.ebean</groupId>
   <artifactId>ebean-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>11.10.2-SNAPSHOT</version>
+  <version>11.10.2</version>
   <name>ebean-maven-plugin</name>
   <url>http://ebean-orm.github.io/</url>
 
@@ -20,7 +20,7 @@
 
   <scm>
     <developerConnection>scm:git:git@github.com:ebean-orm-tools/ebean-maven-plugin.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>ebean-maven-plugin-11.10.2</tag>
   </scm>
 
   <dependencies>
