@@ -1,5 +1,7 @@
 package io.ebean.enhance.maven;
 
+import java.io.File;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -21,7 +23,10 @@ public class MainEnhanceMojo extends AbstractEnhance {
 
 
   public void execute() throws MojoExecutionException {
-    executeFor(classSource);
+      if (new File(classSource).exists())
+          executeFor(classSource);
+      else
+          getLog().info("Skipping non-existent outputDirectory " + classSource);
   }
 
 }
