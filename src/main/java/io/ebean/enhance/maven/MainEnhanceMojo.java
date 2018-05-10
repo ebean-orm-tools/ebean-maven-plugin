@@ -1,16 +1,15 @@
 package io.ebean.enhance.maven;
 
-import java.io.File;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
+import java.io.File;
+
 /**
  * Enhancement for src/main classes.
- *
  */
 @Mojo(name = "enhance", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class MainEnhanceMojo extends AbstractEnhance {
@@ -23,10 +22,11 @@ public class MainEnhanceMojo extends AbstractEnhance {
 
 
   public void execute() throws MojoExecutionException {
-      if (new File(classSource).exists())
-          executeFor(classSource);
-      else
-          getLog().info("Skipping non-existent outputDirectory " + classSource);
+    if (new File(classSource).exists()) {
+      executeFor(classSource);
+    } else {
+      getLog().info("Skipping non-existent outputDirectory " + classSource);
+    }
   }
 
 }
