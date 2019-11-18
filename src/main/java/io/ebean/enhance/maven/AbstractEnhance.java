@@ -3,6 +3,8 @@ package io.ebean.enhance.maven;
 import io.ebean.enhance.Transformer;
 import io.ebean.enhance.ant.OfflineFileTransform;
 import io.ebean.enhance.ant.TransformationListener;
+import io.ebean.enhance.common.EnhanceContext;
+import io.ebean.enhance.common.SummaryInfo;
 import io.ebean.enhance.transactional.TransactionalMethodKey;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -50,32 +52,47 @@ abstract class AbstractEnhance extends AbstractMojo {
 
   public abstract void execute() throws MojoExecutionException;
 
-  protected void executeFor(String classSource) throws MojoExecutionException {
+  void executeFor(String classSource) throws MojoExecutionException {
 
     ClassLoader loader = buildClassLoader(classSource);
-    getLog().info("classLoaderClass=" + loader.getClass() + "  packages=" + loader);
 
     Transformer transformer = new Transformer(loader, transformArgs);
-    getLog().info("classSource=" + classSource + "  transformArgs=" + nullToEmpty(transformArgs) + "  packages=" + nullToEmpty(packages));
+    EnhanceContext ctx = transformer.getEnhanceContext();
+
+    final Log log = getLog();
+    log.info("classSource=" + classSource + "  transformArgs=" + nullToEmpty(transformArgs));
+    log.info(ctx.getPackagesSummary());
+    ctx.collectSummary();
 
     OfflineFileTransform ft = new OfflineFileTransform(transformer, loader, classSource);
     ft.setListener(new TransformationListener() {
-
       public void logEvent(String msg) {
-        getLog().info(msg);
+        log.info(msg);
       }
 
       public void logError(String msg) {
-        getLog().error(msg);
+        log.error(msg);
       }
     });
 
     ft.process(packages);
+    final SummaryInfo summaryInfo = ctx.getSummaryInfo();
+    log.info(trim(summaryInfo.entities()));
+    log.info(trim(summaryInfo.queryBeans()));
+    log.info(trim(summaryInfo.transactional()));
+    log.info(trim(summaryInfo.queryCallers()));
 
     List<TransactionalMethodKey> profilingKeys = transformer.getTransactionProfilingKeys();
     if (profilingKeys != null && !profilingKeys.isEmpty()) {
-      getLog().info("transaction profiling keys - " + profilingKeys);
+      log.info("transaction profiling keys - " + profilingKeys);
     }
+  }
+
+  private static String trim(String val) {
+    if (val.length() > 290) {
+      return val.substring(0, 289) + " ...";
+    }
+    return val;
   }
 
   /**
@@ -86,7 +103,6 @@ abstract class AbstractEnhance extends AbstractMojo {
   }
 
   private ClassLoader buildClassLoader(String classSource) {
-    
     URL[] urls = buildClassPath(classSource);
     return URLClassLoader.newInstance(urls, Thread.currentThread().getContextClassLoader());
   }
@@ -110,7 +126,7 @@ abstract class AbstractEnhance extends AbstractMojo {
       log.debug("add source: " + classSource);
       urls.add(new File(classSource).toURI().toURL());
 
-      return urls.toArray(new URL[urls.size()]);
+      return urls.toArray(new URL[0]);
 
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
