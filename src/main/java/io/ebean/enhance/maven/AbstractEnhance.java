@@ -77,6 +77,7 @@ abstract class AbstractEnhance extends AbstractMojo {
 
     ft.process(packages);
     final SummaryInfo summaryInfo = ctx.getSummaryInfo();
+    log.info("loaded resources: " + summaryInfo.loadedResources());
     log.info(trim(summaryInfo.entities()));
     log.info(trim(summaryInfo.queryBeans()));
     log.info(trim(summaryInfo.transactional()));
