@@ -5,7 +5,6 @@ import io.ebean.enhance.ant.OfflineFileTransform;
 import io.ebean.enhance.ant.TransformationListener;
 import io.ebean.enhance.common.EnhanceContext;
 import io.ebean.enhance.common.SummaryInfo;
-import io.ebean.enhance.transactional.TransactionalMethodKey;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -82,11 +81,6 @@ abstract class AbstractEnhance extends AbstractMojo {
     log.info(trim(summaryInfo.queryBeans()));
     log.info(trim(summaryInfo.transactional()));
     log.info(trim(summaryInfo.queryCallers()));
-
-    List<TransactionalMethodKey> profilingKeys = transformer.getTransactionProfilingKeys();
-    if (profilingKeys != null && !profilingKeys.isEmpty()) {
-      log.info("transaction profiling keys - " + profilingKeys);
-    }
   }
 
   private static String trim(String val) {
