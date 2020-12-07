@@ -16,6 +16,7 @@
 
   <properties>
     <ebean.agent.version>12.6.2</ebean.agent.version>
+    <nexus.staging.autoReleaseAfterClose>false</nexus.staging.autoReleaseAfterClose>
   </properties>
 
   <scm>
@@ -23,9 +24,6 @@
     <tag>HEAD</tag>
   </scm>
 
-  <properties>
-    <nexus.staging.autoReleaseAfterClose>false</nexus.staging.autoReleaseAfterClose>
-  </properties>
 
   <dependencies>
 
