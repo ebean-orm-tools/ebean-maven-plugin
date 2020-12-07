@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.avaje</groupId>
     <artifactId>java8-oss</artifactId>
-    <version>2.2</version>
+    <version>2.3</version>
   </parent>
 
   <groupId>io.ebean</groupId>
@@ -15,7 +15,7 @@
   <url>http://ebean-orm.github.io/</url>
 
   <properties>
-    <ebean.agent.version>12.6.1</ebean.agent.version>
+    <ebean.agent.version>12.6.2</ebean.agent.version>
   </properties>
 
   <scm>
