@@ -15,7 +15,7 @@
   <url>http://ebean-orm.github.io/</url>
 
   <properties>
-    <ebean.agent.version>12.6.2</ebean.agent.version>
+    <ebean.agent.version>12.6.3</ebean.agent.version>
     <nexus.staging.autoReleaseAfterClose>false</nexus.staging.autoReleaseAfterClose>
   </properties>
 
