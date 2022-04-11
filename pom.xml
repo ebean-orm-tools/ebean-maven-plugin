@@ -11,12 +11,12 @@
   <groupId>io.ebean</groupId>
   <artifactId>ebean-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>13.2.0</version>
+  <version>13.3.0</version>
   <name>ebean-maven-plugin</name>
   <url>https://ebean-orm.github.io/</url>
 
   <properties>
-    <ebean.agent.version>13.2.0</ebean.agent.version>
+    <ebean.agent.version>13.3.0</ebean.agent.version>
     <nexus.staging.autoReleaseAfterClose>true</nexus.staging.autoReleaseAfterClose>
   </properties>
 
