@@ -9,8 +9,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import java.io.File;
 
 /**
- * Enhancement for src/main classes.
- *
+ * Enhancement for src/main classes. Marked as threadSafe to announce support for parallel building.
  */
 @Mojo(name = "testEnhance", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class TestEnhanceMojo extends AbstractEnhance {
