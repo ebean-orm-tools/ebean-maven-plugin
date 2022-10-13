@@ -39,12 +39,10 @@ abstract class AbstractEnhance extends AbstractMojo {
    * <p>
    * If the package name ends in "/**" then this recursively transforms all sub
    * packages as well.
-   * </p>
    * <p>
    * This is optional. When not set the agent may visit more classes to see if they need
    * enhancement but will still enhance effectively and pretty quickly (ignoring standard
    * jdk classes and lots of common libraries and language sdk's).
-   * </p>
    */
   @Parameter(name = "packages")
   String packages;
@@ -60,7 +58,7 @@ abstract class AbstractEnhance extends AbstractMojo {
 
     final Log log = getLog();
     log.info("classSource=" + classSource + "  transformArgs=" + nullToEmpty(transformArgs));
-    log.info(ctx.getPackagesSummary());
+    log.info(ctx.packagesSummary());
     ctx.collectSummary();
 
     OfflineFileTransform ft = new OfflineFileTransform(transformer, loader, classSource);
@@ -75,12 +73,15 @@ abstract class AbstractEnhance extends AbstractMojo {
     });
 
     ft.process(packages);
-    final SummaryInfo summaryInfo = ctx.getSummaryInfo();
+    final SummaryInfo summaryInfo = ctx.summaryInfo();
     log.info("loaded resources: " + summaryInfo.loadedResources());
     log.info(trim(summaryInfo.entities()));
     log.info(trim(summaryInfo.queryBeans()));
     log.info(trim(summaryInfo.transactional()));
     log.info(trim(summaryInfo.queryCallers()));
+    if (ctx.isEnableEntityFieldAccess()) {
+      log.info(trim(summaryInfo.fieldAccess()));
+    }
   }
 
   private static String trim(String val) {
