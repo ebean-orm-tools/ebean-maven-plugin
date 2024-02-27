@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<component-set>
+  <components>
+    <component>
+      <role>org.apache.maven.lifecycle.Lifecycle</role>
+      <implementation>org.apache.maven.lifecycle.Lifecycle</implementation>
+      <role-hint>ebean-maven-enhancement-plugin</role-hint>
+      <configuration>
+        <id>ebean-maven-enhancement-plugin</id>
+        <phases>
+          <phase>ebean-maven-enhancement-not-used-phase</phase>
+        </phases>
+        <default-phases>
+          <process-classes>
+            io.ebean:ebean-maven-plugin:${project.version}:enhance
+          </process-classes>
+          <process-test-classes>
+            io.ebean:ebean-maven-plugin:${project.version}:testEnhance
+          </process-test-classes>
+        </default-phases>
+      </configuration>
+    </component>
+  </components>
+</component-set>

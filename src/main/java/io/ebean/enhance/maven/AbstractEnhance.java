@@ -32,7 +32,7 @@ abstract class AbstractEnhance extends AbstractMojo {
    * Set the arguments passed to the transformer.
    */
   @Parameter(name = "transformArgs")
-  String transformArgs;
+  String transformArgs = "debug=1";
 
   /**
    * Set the package name to search for classes to transform.
