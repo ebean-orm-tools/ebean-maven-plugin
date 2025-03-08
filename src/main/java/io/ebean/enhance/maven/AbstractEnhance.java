@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -61,6 +62,7 @@ abstract class AbstractEnhance extends AbstractMojo {
     log.info(ctx.packagesSummary());
     ctx.collectSummary();
 
+    List<String> errors = Collections.synchronizedList(new ArrayList<>());
     OfflineFileTransform ft = new OfflineFileTransform(transformer, loader, classSource);
     ft.setListener(new TransformationListener() {
       public void logEvent(String msg) {
@@ -68,11 +70,15 @@ abstract class AbstractEnhance extends AbstractMojo {
       }
 
       public void logError(String msg) {
+        errors.add(msg);
         log.error(msg);
       }
     });
 
     ft.process(packages);
+    if (!errors.isEmpty()) {
+      throw new MojoExecutionException("Errors: " + errors);
+    }
     final SummaryInfo summaryInfo = ctx.summaryInfo();
     log.info("loaded resources: " + summaryInfo.loadedResources());
     log.info(trim(summaryInfo.entities()));
