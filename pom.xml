@@ -5,18 +5,18 @@
   <parent>
     <groupId>org.avaje</groupId>
     <artifactId>java8-oss</artifactId>
-    <version>3.9</version>
+    <version>5.0</version>
   </parent>
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>14.11.0</version>
+  <version>16.0.0-RC2</version>
   <name>ebean-maven-plugin</name>
   <url>https://ebean-orm.github.io/</url>
 
   <properties>
-    <ebean.agent.version>14.11.0</ebean.agent.version>
+    <ebean.agent.version>15.12.0</ebean.agent.version>
     <nexus.staging.autoReleaseAfterClose>true</nexus.staging.autoReleaseAfterClose>
   </properties>
 
